@@ -1,7 +1,10 @@
-
+//single element should be returned 
 function App() {
-  return (
+  return (      
+      <>   
       <h1>chai aur react</h1>
+      <p>yo guys</p>
+      </>
   )
 }
 
