@@ -21,7 +21,7 @@ function App() {
       <h2>Counter value: {counter}</h2>
       <button onClick={addValue}>
         Add value
-      </button> <br />
+      </button> <br /> <br />
       <button onClick={removeValue}>
         Reduce Value
       </button>
