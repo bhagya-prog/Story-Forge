@@ -7,7 +7,7 @@ export interface BlogPost {
   excerpt: string
   author: string
   authorAvatar: string
-  category: "learning" | "reading" | "writing-tips" | "community" | "book-review"
+  category: "learning" | "reading" | "writing-tips" | "community" | "book-review" | "inspiration"
   tags: string[]
   likes: number
   comments: number

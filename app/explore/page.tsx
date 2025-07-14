@@ -316,14 +316,18 @@ export default function ExplorePage() {
                           <Checkbox
                             id="collaborative"
                             checked={collaborativeOnly}
-                            onCheckedChange={setCollaborativeOnly}
+                            onCheckedChange={checked => setCollaborativeOnly(checked === true)}
                           />
                           <Label htmlFor="collaborative" className="text-sm">
                             Collaborative stories only
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox id="recent" checked={recentOnly} onCheckedChange={setRecentOnly} />
+                          <Checkbox
+                            id="recent"
+                            checked={recentOnly}
+                            onCheckedChange={checked => setRecentOnly(checked === true)}
+                          />
                           <Label htmlFor="recent" className="text-sm">
                             Updated this week
                           </Label>

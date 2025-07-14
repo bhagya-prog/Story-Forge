@@ -14,7 +14,9 @@ import { NewStoryWizard } from "@/components/new-story-wizard"
 export default function MyStoriesPage() {
   const [showNewStoryWizard, setShowNewStoryWizard] = useState(false)
   const { stories: fetchedStories, loading } = useStories()
-  const [userStories, setUserStories] = useState(fetchedStories.filter((story) => story.author === "You"))
+  const [userStories, setUserStories] = useState(
+    fetchedStories.filter((story) => Array.isArray(story.authors) && story.authors.includes("You"))
+  )
 
   // Mock data for user's stories with different statuses
   const myStories = [
