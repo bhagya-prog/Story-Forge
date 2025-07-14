@@ -38,7 +38,7 @@ export function BlogPostReader({ post, isOpen, onClose }: BlogPostReaderProps) {
       authorAvatar: "SJ",
       content:
         "This is such an insightful post! I've been struggling with this exact issue and your perspective really helps.",
-      createdAt: "2024-01-15T10:30:00Z",
+      createdAt: "2025-01-15T10:30:00Z",
       likes: 12,
       isLiked: false,
     },
@@ -48,7 +48,7 @@ export function BlogPostReader({ post, isOpen, onClose }: BlogPostReaderProps) {
       authorAvatar: "MC",
       content:
         "Great advice! I especially love the practical tips you've shared. Bookmarking this for future reference.",
-      createdAt: "2024-01-15T14:20:00Z",
+      createdAt: "2025-01-15T14:20:00Z",
       likes: 8,
       isLiked: false,
     },
@@ -57,7 +57,7 @@ export function BlogPostReader({ post, isOpen, onClose }: BlogPostReaderProps) {
       author: "Emma Wilson",
       authorAvatar: "EW",
       content: "Thank you for sharing your experience. It's refreshing to read such honest and helpful content.",
-      createdAt: "2024-01-16T09:15:00Z",
+      createdAt: "2025-01-16T09:15:00Z",
       likes: 15,
       isLiked: false,
     },

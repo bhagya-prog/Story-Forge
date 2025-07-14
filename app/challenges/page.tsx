@@ -25,7 +25,7 @@ const challenges = [
     difficulty: "Medium",
     tags: ["Horror", "Short Story", "Timed"],
     requirements: "Minimum 1,000 words, maximum 5,000 words. Must include supernatural elements.",
-    deadline: "October 31, 2024",
+    deadline: "October 31, 2025",
     status: "active",
   },
   {
@@ -38,7 +38,7 @@ const challenges = [
     difficulty: "Hard",
     tags: ["Sci-Fi", "Collaboration", "Long-form"],
     requirements: "Work in teams of 3-5 writers. Each writer contributes 2,000-3,000 words.",
-    deadline: "November 15, 2024",
+    deadline: "November 15, 2025",
     status: "active",
   },
   {

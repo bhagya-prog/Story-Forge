@@ -72,7 +72,7 @@ export default function StoryPage() {
         author: "Sarah Johnson",
         authorAvatar: "SJ",
         content: "This is absolutely beautiful! The way you describe the emotions is so vivid.",
-        createdAt: "2024-01-15T10:30:00Z",
+        createdAt: "2025-01-15T10:30:00Z",
         likes: 12,
       },
       {
@@ -80,7 +80,7 @@ export default function StoryPage() {
         author: "Mike Chen",
         authorAvatar: "MC",
         content: "I couldn't put this down! When's the next chapter coming?",
-        createdAt: "2024-01-15T14:20:00Z",
+        createdAt: "2025-01-15T14:20:00Z",
         likes: 8,
       },
       {
@@ -88,7 +88,7 @@ export default function StoryPage() {
         author: "Emma Wilson",
         authorAvatar: "EW",
         content: "The character development is incredible. I feel so connected to the protagonist.",
-        createdAt: "2024-01-16T09:15:00Z",
+        createdAt: "2025-01-16T09:15:00Z",
         likes: 15,
       },
     ]

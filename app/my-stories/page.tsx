@@ -31,7 +31,7 @@ export default function MyStoriesPage() {
       views: 1205,
       comments: 18,
       collaborators: 0,
-      lastUpdated: "2024-01-15",
+      lastUpdated: "2025-01-15",
       wordCount: 12500,
     },
     {
@@ -45,7 +45,7 @@ export default function MyStoriesPage() {
       views: 0,
       comments: 0,
       collaborators: 2,
-      lastUpdated: "2024-01-20",
+      lastUpdated: "2025-01-20",
       wordCount: 3200,
     },
     {
@@ -59,7 +59,7 @@ export default function MyStoriesPage() {
       views: 156,
       comments: 7,
       collaborators: 1,
-      lastUpdated: "2024-01-18",
+      lastUpdated: "2025-01-18",
       wordCount: 8900,
     },
     {
@@ -73,7 +73,7 @@ export default function MyStoriesPage() {
       views: 2340,
       comments: 43,
       collaborators: 0,
-      lastUpdated: "2024-01-10",
+      lastUpdated: "2025-01-10",
       wordCount: 15600,
     },
     {
@@ -87,7 +87,7 @@ export default function MyStoriesPage() {
       views: 0,
       comments: 0,
       collaborators: 0,
-      lastUpdated: "2024-01-21",
+      lastUpdated: "2025-01-21",
       wordCount: 0,
     },
   ]

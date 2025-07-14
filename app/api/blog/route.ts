@@ -59,8 +59,8 @@ To anyone just starting their writing journey: be patient with yourself. Every p
     likes: 234,
     comments: 45,
     readTime: 5,
-    createdAt: "2024-01-20",
-    updatedAt: "2024-01-20",
+    createdAt: "2025-07-10",
+    updatedAt: "2025-07-10",
   },
   {
     id: "2",
@@ -97,8 +97,8 @@ What books have taught you the most about writing? I'd love to hear your recomme
     likes: 189,
     comments: 32,
     readTime: 4,
-    createdAt: "2024-01-18",
-    updatedAt: "2024-01-18",
+    createdAt: "2025-07-09",
+    updatedAt: "2025-07-09",
   },
   {
     id: "3",
@@ -141,13 +141,13 @@ Try one this week and let me know how it goes!`,
     likes: 456,
     comments: 78,
     readTime: 6,
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-15",
+    createdAt: "2025-07-08",
+    updatedAt: "2025-07-08",
   },
   {
     id: "4",
-    title: "Currently Reading: Building My 2024 Reading List for Writers",
-    content: `As writers, our reading choices shape our craft. Here's what's on my reading list for 2024, organized by what I hope to learn from each book.
+    title: "Currently Reading: Building My 2025 Reading List for Writers",
+    content: `As writers, our reading choices shape our craft. Here's what's on my reading list for 2025, organized by what I hope to learn from each book.
 
 ## For Plot Structure
 - **"Save the Cat! Writes a Novel" by Jessica Brody** - Currently reading this and loving the practical approach to story structure
@@ -169,7 +169,7 @@ Try one this week and let me know how it goes!`,
 
 Currently halfway through "Klara and the Sun" by Kazuo Ishiguro. The way he writes from an AI's perspective is masterful—every sentence feels carefully chosen to reflect Klara's unique way of processing the world.
 
-## My Reading Goals for 2024
+## My Reading Goals for 2025
 
 1. Read 52 books (1 per week)
 2. Include at least 20 craft books
@@ -178,16 +178,16 @@ Currently halfway through "Klara and the Sun" by Kazuo Ishiguro. The way he writ
 
 What's on your reading list? Any craft books you'd recommend?`,
     excerpt:
-      "Sharing my 2024 reading list focused on improving my writing craft, with recommendations for plot, character, style, and inspiration.",
+      "Sharing my 2025 reading list focused on improving my writing craft, with recommendations for plot, character, style, and inspiration.",
     author: "Alex Thompson",
     authorAvatar: "AT",
     category: "reading",
-    tags: ["Reading List", "Writing Craft", "Book Recommendations", "2024 Goals"],
+    tags: ["Reading List", "Writing Craft", "Book Recommendations", "2025 Goals"],
     likes: 167,
     comments: 29,
     readTime: 3,
-    createdAt: "2024-01-12",
-    updatedAt: "2024-01-12",
+    createdAt: "2025-07-12",
+    updatedAt: "2025-07-12",
   },
   {
     id: "5",
@@ -239,8 +239,8 @@ Who wants to collaborate on a fantasy heist story? 😉`,
     likes: 298,
     comments: 67,
     readTime: 4,
-    createdAt: "2024-01-10",
-    updatedAt: "2024-01-10",
+    createdAt: "2025-07-10",
+    updatedAt: "2025-07-10",
   },
 ]
 
