@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { StoryCard } from "@/components/story-card"
 import { useStories } from "@/hooks/use-stories"
+import { profileService, UserProfile } from "@/lib/backend-services"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useToast } from "@/hooks/use-toast"
 import {
   MapPin,
   Calendar,
@@ -31,59 +33,164 @@ import {
 
 export default function ProfilePage() {
   const { stories } = useStories()
+  const { toast } = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const [showImageUpload, setShowImageUpload] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
-  const [userProfile, setUserProfile] = useState({
-    name: "John Doe",
-    username: "@johndoe",
-    bio: "Passionate storyteller exploring the boundaries between reality and imagination. Love collaborative writing and sci-fi adventures.",
-    location: "San Francisco, CA",
-    joinDate: "January 2023",
-    website: "johndoe.com",
-    twitter: "johndoe",
-    github: "johndoe",
-    followers: 1247,
-    following: 892,
-    totalStories: 15,
-    totalLikes: 3420,
-    totalForks: 156,
+  // Default profile structure
+  const defaultProfile: UserProfile = {
+    id: "",
+    name: "",
+    username: "",
+    email: "",
+    bio: "",
+    location: "",
+    website: "",
+    twitter: "",
+    github: "",
     avatar: "/placeholder.svg?height=96&width=96",
     coverImage: "/placeholder.svg?height=200&width=800",
-  })
-
-  const [editForm, setEditForm] = useState({
-    name: userProfile.name,
-    bio: userProfile.bio,
-    location: userProfile.location,
-    website: userProfile.website,
-    twitter: userProfile.twitter,
-    github: userProfile.github,
-  })
-
-  const handleSaveProfile = () => {
-    setUserProfile((prev) => ({
-      ...prev,
-      ...editForm,
-    }))
-    setIsEditing(false)
+    createdAt: "",
   }
 
-  const handleImageUpload = (type: "avatar" | "cover") => {
+  const [userProfile, setUserProfile] = useState<UserProfile>(defaultProfile)
+  const [editForm, setEditForm] = useState<Partial<UserProfile>>({})
+
+  // Load profile data on component mount
+  useEffect(() => {
+    loadProfile()
+  }, [])
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true)
+      const profile = await profileService.getProfile()
+      setUserProfile(profile)
+      setEditForm({
+        name: profile.name,
+        username: profile.username,
+        bio: profile.bio,
+        location: profile.location,
+        website: profile.website,
+        twitter: profile.twitter,
+        github: profile.github,
+      })
+    } catch (error) {
+      console.error('Error loading profile:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load profile data. Using default values.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSaveProfile = async () => {
+    try {
+      setSaving(true)
+      console.log('=== SAVE PROFILE DEBUG ===')
+      console.log('Current userProfile state:', userProfile)
+      console.log('Current editForm state:', editForm)
+      console.log('=== END DEBUG ===')
+      
+      const updatedProfile = await profileService.updateProfile(editForm)
+      console.log('Profile updated successfully:', updatedProfile)
+      setUserProfile(updatedProfile)
+      setIsEditing(false)
+      toast({
+        title: "Success",
+        description: "Profile updated successfully!",
+      })
+    } catch (error: any) {
+      console.error('Error updating profile:', error)
+      
+      // Extract error message from backend
+      let errorMessage = "Failed to update profile. Please try again."
+      if (error?.message) {
+        errorMessage = error.message
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error
+      } else if (error?.error) {
+        errorMessage = error.error
+      }
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleImageUpload = async (type: "avatar" | "cover") => {
     // In a real app, this would handle file upload
     const input = document.createElement("input")
     input.type = "file"
     input.accept = "image/*"
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (file) {
         const reader = new FileReader()
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
           const result = e.target?.result as string
+          
+          // Update the local state immediately for UI feedback
           setUserProfile((prev) => ({
             ...prev,
             [type === "avatar" ? "avatar" : "coverImage"]: result,
           }))
+          
+          // Save the image to backend
+          try {
+            setSaving(true)
+            const updateData = {
+              [type === "avatar" ? "avatar" : "coverImage"]: result,
+            }
+            
+            console.log(`Uploading ${type} image...`, updateData)
+            const updatedProfile = await profileService.updateProfile(updateData)
+            console.log(`${type} image uploaded successfully:`, updatedProfile)
+            
+            // Update the profile with the response from backend
+            setUserProfile(updatedProfile)
+            
+            toast({
+              title: "Success",
+              description: `${type === "avatar" ? "Profile picture" : "Cover image"} updated successfully!`,
+            })
+          } catch (error: any) {
+            console.error(`Error uploading ${type} image:`, error)
+            
+            // Extract error message from backend
+            let errorMessage = `Failed to update ${type === "avatar" ? "profile picture" : "cover image"}. Please try again.`
+            if (error?.message) {
+              errorMessage = error.message
+            } else if (error?.response?.data?.error) {
+              errorMessage = error.response.data.error
+            } else if (error?.error) {
+              errorMessage = error.error
+            }
+            
+            toast({
+              title: "Error",
+              description: errorMessage,
+              variant: "destructive",
+            })
+            
+            // Revert the UI change on error
+            setUserProfile((prev) => ({
+              ...prev,
+              [type === "avatar" ? "avatar" : "coverImage"]: type === "avatar" ? "/placeholder-user.jpg" : "/placeholder.jpg",
+            }))
+          } finally {
+            setSaving(false)
+          }
         }
         reader.readAsDataURL(file)
       }
@@ -95,18 +202,27 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
 
-      {/* Cover Image */}
-      <section className="relative h-48 bg-gradient-to-r from-electric-blue to-turquoise">
-        <img src={userProfile.coverImage || "/placeholder.svg"} alt="Cover" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="absolute top-4 right-4"
-          onClick={() => handleImageUpload("cover")}
-        >
-          <Camera className="h-4 w-4 mr-2" />
-          Change Cover
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-blue mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading profile...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Cover Image */}
+          <section className="relative h-48 bg-gradient-to-r from-electric-blue to-turquoise">
+            <img src={userProfile.coverImage || "/placeholder.svg"} alt="Cover" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="absolute top-4 right-4"
+              onClick={() => handleImageUpload("cover")}
+            >
+              <Camera className="h-4 w-4 mr-2" />
+              Change Cover
         </Button>
       </section>
 
@@ -146,13 +262,15 @@ export default function ProfilePage() {
                 <p className="text-gray-600 mb-4 max-w-2xl">{userProfile.bio}</p>
 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <MapPin className="h-4 w-4" />
-                    <span>{userProfile.location}</span>
-                  </div>
+                  {userProfile.location && (
+                    <div className="flex items-center space-x-1">
+                      <MapPin className="h-4 w-4" />
+                      <span>{userProfile.location}</span>
+                    </div>
+                  )}
                   <div className="flex items-center space-x-1">
                     <Calendar className="h-4 w-4" />
-                    <span>Joined {userProfile.joinDate}</span>
+                    <span>Joined {userProfile.joinDate || new Date(userProfile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
                   </div>
                   {userProfile.website && (
                     <div className="flex items-center space-x-1">
@@ -193,7 +311,22 @@ export default function ProfilePage() {
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Message
                 </Button>
-                <Button className="bg-electric-blue hover:bg-electric-blue/90" onClick={() => setIsEditing(true)}>
+                <Button 
+                  className="bg-electric-blue hover:bg-electric-blue/90" 
+                  onClick={() => {
+                    // Update editForm with current userProfile data when opening dialog
+                    setEditForm({
+                      name: userProfile.name,
+                      username: userProfile.username,
+                      bio: userProfile.bio,
+                      location: userProfile.location,
+                      website: userProfile.website,
+                      twitter: userProfile.twitter,
+                      github: userProfile.github,
+                    });
+                    setIsEditing(true);
+                  }}
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Profile
                 </Button>
@@ -203,23 +336,23 @@ export default function ProfilePage() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-8">
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{userProfile.followers}</p>
+                <p className="text-2xl font-bold text-gray-900">{userProfile.followers ?? 0}</p>
                 <p className="text-sm text-gray-500">Followers</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{userProfile.following}</p>
+                <p className="text-2xl font-bold text-gray-900">{userProfile.following ?? 0}</p>
                 <p className="text-sm text-gray-500">Following</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{userProfile.totalStories}</p>
+                <p className="text-2xl font-bold text-gray-900">{userProfile.totalStories ?? 0}</p>
                 <p className="text-sm text-gray-500">Stories</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{userProfile.totalLikes}</p>
+                <p className="text-2xl font-bold text-gray-900">{userProfile.totalLikes ?? 0}</p>
                 <p className="text-sm text-gray-500">Likes</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{userProfile.totalForks}</p>
+                <p className="text-2xl font-bold text-gray-900">{userProfile.totalForks ?? 0}</p>
                 <p className="text-sm text-gray-500">Forks</p>
               </div>
             </div>
@@ -323,6 +456,19 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={editForm.username}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, username: e.target.value }))}
+                  className="mt-2"
+                  placeholder="Enter username"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div>
                 <Label htmlFor="location">Location</Label>
                 <Input
                   id="location"
@@ -383,9 +529,13 @@ export default function ProfilePage() {
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
-              <Button onClick={handleSaveProfile} className="bg-electric-blue hover:bg-electric-blue/90">
+              <Button 
+                onClick={handleSaveProfile} 
+                disabled={saving}
+                className="bg-electric-blue hover:bg-electric-blue/90"
+              >
                 <Save className="h-4 w-4 mr-2" />
-                Save Changes
+                {saving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>
@@ -393,6 +543,8 @@ export default function ProfilePage() {
       </Dialog>
 
       <Footer />
+        </>
+      )}
     </div>
   )
 }

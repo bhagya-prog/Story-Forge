@@ -37,10 +37,31 @@ export class ApiClient {
       console.log('Response status:', response.status);
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error Response:', errorText);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        
+        try {
+          const errorData = await response.json();
+          console.error('API Error Response:', errorData);
+          
+          // Extract error message from backend response
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (parseError) {
+          // If JSON parsing fails, try to get text
+          try {
+            const errorText = await response.text();
+            console.error('API Error Response (text):', errorText);
+            errorMessage = `${errorMessage} - ${errorText}`;
+          } catch (textError) {
+            console.error('Failed to parse error response:', textError);
+          }
+        }
+        
         console.error('Request headers that were sent:', config.headers);
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();

@@ -35,6 +35,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/bulk', require('./routes/bulkRoutes'));
 app.use('/api/club', require('./routes/clubRoutes'));
+app.use('/api/comments', require('./routes/commentRoutes'));
 app.use('/api/draft', require('./routes/draftRoutes'));
 app.use('/api/editor', require('./routes/editorRoutes'));
 app.use('/api/gamification', require('./routes/gamificationRoutes'));

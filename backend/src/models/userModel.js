@@ -28,6 +28,42 @@ const userSchema = new mongoose.Schema({
     type: String,
     maxlength: 500
   },
+  location: {
+    type: String,
+    maxlength: 100
+  },
+  website: {
+    type: String,
+    maxlength: 255
+  },
+  twitter: {
+    type: String,
+    maxlength: 50
+  },
+  github: {
+    type: String,
+    maxlength: 50
+  },
+  avatar: {
+    type: String,
+    default: '/placeholder.svg?height=96&width=96'
+  },
+  coverImage: {
+    type: String,
+    default: '/placeholder.svg?height=200&width=800'
+  },
+  totalStories: {
+    type: Number,
+    default: 0
+  },
+  totalLikes: {
+    type: Number,
+    default: 0
+  },
+  totalForks: {
+    type: Number,
+    default: 0
+  },
   points: { 
     type: Number, 
     default: 0 

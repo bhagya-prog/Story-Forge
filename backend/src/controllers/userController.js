@@ -51,32 +51,142 @@ exports.login = async (req, res, next) => {
 
 exports.addPoints = async (req, res, next) => {
   try {
-    const { userId, points } = req.body;
+    const { userId, points, source } = req.body;
     
-    if (req.user.id !== userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+
+    user.points += points;
+    await user.save();
     
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $inc: { points } },
-      { new: true }
-    );
-    res.json(user);
+    res.json({ 
+      message: 'Points added successfully',
+      newPoints: user.points 
+    });
   } catch (err) {
     next(err);
   }
 };
 
-exports.shareStory = async (req, res, next) => {
+// Profile management endpoints
+exports.getProfile = async (req, res, next) => {
   try {
-    const { storyId } = req.params;
-    const story = await Story.findById(storyId);
-    if (!story) return res.status(404).json({ error: 'Story not found' });
-    story.shareCount = (story.shareCount || 0) + 1;
-    await story.save();
-    res.json({ message: 'Story share count incremented', shareCount: story.shareCount });
+    const userId = req.user.id;
+    
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Return profile data with defaults for missing fields
+    const profile = {
+      id: user._id,
+      name: user.username || '', // Use username as name for compatibility
+      username: user.username || '',
+      email: user.email || '',
+      bio: user.bio || '',
+      avatar: user.avatar || '/placeholder-user.jpg',
+      coverImage: user.coverImage || '/placeholder.jpg',
+      twitter: user.twitter || '',
+      github: user.github || '',
+      website: user.website || '',
+      location: user.location || '',
+      followers: user.followers ? user.followers.length : 0,
+      following: user.following ? user.following.length : 0,
+      totalStories: user.totalStories || 0,
+      totalLikes: user.totalLikes || 0,
+      totalForks: user.totalForks || 0,
+      joinDate: user.createdAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      points: user.points || 0
+    };
+
+    res.json(profile);
   } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const updates = req.body;
+
+    console.log('Profile update request received:');
+    console.log('User ID:', userId);
+    console.log('Updates:', updates);
+
+    // Fields that are allowed to be updated
+    const allowedFields = ['username', 'bio', 'avatar', 'coverImage', 'location', 'website', 'twitter', 'github'];
+    
+    const updateData = {};
+    
+    // Handle regular fields
+    allowedFields.forEach(field => {
+      if (updates[field] !== undefined) {
+        updateData[field] = updates[field];
+      }
+    });
+
+    // If username is being updated, check if it's available
+    if (updateData.username) {
+      const existingUser = await User.findOne({ 
+        username: updateData.username,
+        _id: { $ne: userId } // Exclude current user
+      });
+      
+      if (existingUser) {
+        return res.status(400).json({ 
+          error: 'Username is already taken. Please choose a different username.' 
+        });
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Return updated profile data
+    const profile = {
+      id: user._id,
+      name: user.username || '', // Use username as name for compatibility
+      username: user.username || '',
+      email: user.email || '',
+      bio: user.bio || '',
+      avatar: user.avatar || '/placeholder-user.jpg',
+      coverImage: user.coverImage || '/placeholder.jpg',
+      twitter: user.twitter || '',
+      github: user.github || '',
+      website: user.website || '',
+      location: user.location || '',
+      followers: user.followers ? user.followers.length : 0,
+      following: user.following ? user.following.length : 0,
+      totalStories: user.totalStories || 0,
+      totalLikes: user.totalLikes || 0,
+      totalForks: user.totalForks || 0,
+      joinDate: user.createdAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      points: user.points || 0
+    };
+
+    res.json(profile);
+  } catch (err) {
+    // Handle MongoDB duplicate key error
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.username) {
+      return res.status(400).json({ 
+        error: 'Username is already taken. Please choose a different username.' 
+      });
+    }
     next(err);
   }
 };

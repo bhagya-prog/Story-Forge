@@ -94,6 +94,13 @@ export default function MyStoriesPage() {
 
   const [stories, setStories] = useState(myStories)
 
+  const handleEditStory = (storyId: string) => {
+    // For now, show an alert. In a real app, this would redirect to story editor
+    alert(`Edit story functionality coming soon! Story ID: ${storyId}`);
+    // TODO: Implement story editor or redirect to story editing page
+    // window.location.href = `/story/edit/${storyId}`;
+  };
+
   const handleDeleteStory = (storyId: string) => {
     if (confirm("Are you sure you want to delete this story? This action cannot be undone.")) {
       setStories(stories.filter((story) => story.id !== storyId))
@@ -224,7 +231,12 @@ export default function MyStoriesPage() {
             <TabsContent value="all" className="mt-6">
               <div className="grid gap-6">
                 {stories.map((story) => (
-                  <MyStoryCard key={story.id} story={story} onDelete={() => handleDeleteStory(story.id)} />
+                  <MyStoryCard 
+                    key={story.id} 
+                    story={story} 
+                    onDelete={() => handleDeleteStory(story.id)}
+                    onEdit={() => handleEditStory(story.id)}
+                  />
                 ))}
               </div>
             </TabsContent>
@@ -232,7 +244,12 @@ export default function MyStoriesPage() {
             <TabsContent value="published" className="mt-6">
               <div className="grid gap-6">
                 {publishedStories.map((story) => (
-                  <MyStoryCard key={story.id} story={story} onDelete={() => handleDeleteStory(story.id)} />
+                  <MyStoryCard 
+                    key={story.id} 
+                    story={story} 
+                    onDelete={() => handleDeleteStory(story.id)}
+                    onEdit={() => handleEditStory(story.id)}
+                  />
                 ))}
               </div>
             </TabsContent>
@@ -240,7 +257,12 @@ export default function MyStoriesPage() {
             <TabsContent value="drafts" className="mt-6">
               <div className="grid gap-6">
                 {draftStories.map((story) => (
-                  <MyStoryCard key={story.id} story={story} onDelete={() => handleDeleteStory(story.id)} />
+                  <MyStoryCard 
+                    key={story.id} 
+                    story={story} 
+                    onDelete={() => handleDeleteStory(story.id)}
+                    onEdit={() => handleEditStory(story.id)}
+                  />
                 ))}
               </div>
             </TabsContent>
@@ -248,7 +270,12 @@ export default function MyStoriesPage() {
             <TabsContent value="review" className="mt-6">
               <div className="grid gap-6">
                 {inReviewStories.map((story) => (
-                  <MyStoryCard key={story.id} story={story} onDelete={() => handleDeleteStory(story.id)} />
+                  <MyStoryCard 
+                    key={story.id} 
+                    story={story} 
+                    onDelete={() => handleDeleteStory(story.id)}
+                    onEdit={() => handleEditStory(story.id)}
+                  />
                 ))}
               </div>
             </TabsContent>
@@ -266,9 +293,10 @@ export default function MyStoriesPage() {
 interface MyStoryCardProps {
   story: any
   onDelete: () => void
+  onEdit: () => void
 }
 
-function MyStoryCard({ story, onDelete }: MyStoryCardProps) {
+function MyStoryCard({ story, onDelete, onEdit }: MyStoryCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
@@ -352,7 +380,7 @@ function MyStoryCard({ story, onDelete }: MyStoryCardProps) {
           </div>
 
           <div className="flex items-center space-x-2 ml-4">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={onEdit}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>

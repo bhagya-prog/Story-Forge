@@ -28,6 +28,12 @@ export function Navigation() {
     }
   }
 
+  const handleNotifications = () => {
+    // For now, show an alert. In a real app, this would open a notifications panel
+    alert("Notifications functionality coming soon!");
+    // TODO: Implement notifications panel or redirect to notifications page
+  };
+
   const handleNavigation = (path: string) => {
     if (path === "/logout") {
       // Handle logout
@@ -107,7 +113,7 @@ export function Navigation() {
             </Button>
 
             {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
+            <Button onClick={handleNotifications} variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               {state.notifications.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-electric-blue text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">

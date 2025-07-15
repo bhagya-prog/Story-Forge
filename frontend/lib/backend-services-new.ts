@@ -188,11 +188,7 @@ export interface BackendStoryResponse {
   genre?: string[];
   likes: string[]; // Array of user IDs who liked the story
   forks: string[]; // Array of story IDs that forked this story
-  likesCount?: number; // Count of likes (from backend transformation)
-  forksCount?: number; // Count of forks (from backend transformation)
-  viewsCount?: number; // Count of views (from backend transformation)
   shareCount?: number;
-  viewCount?: number;
   isPublic: boolean;
   allowCollaboration?: boolean;
   createdAt: string;
@@ -219,23 +215,17 @@ export interface Story {
 
 // Transform backend story to frontend format
 function transformBackendStory(backendStory: BackendStoryResponse): Story {
-  // Handle author field safely
-  let authorName = 'Unknown Author';
-  if (typeof backendStory.author === 'string') {
-    authorName = backendStory.author;
-  } else if (backendStory.author && typeof backendStory.author === 'object' && backendStory.author.username) {
-    authorName = backendStory.author.username;
-  }
-
   return {
     id: backendStory._id,
     title: backendStory.title,
-    authors: [authorName],
+    authors: typeof backendStory.author === 'string' 
+      ? [backendStory.author] 
+      : [backendStory.author.username],
     description: backendStory.summary || '',
     tags: backendStory.tags || [],
-    likes: backendStory.likesCount ?? (backendStory.likes ? backendStory.likes.length : 0), // Use count from backend or calculate
-    forks: backendStory.forksCount ?? (backendStory.forks ? backendStory.forks.length : 0), // Use count from backend or calculate
-    views: backendStory.viewsCount ?? backendStory.viewCount ?? backendStory.shareCount ?? 0, // Use views count from backend
+    likes: backendStory.likes ? backendStory.likes.length : 0, // Count of likes array
+    forks: backendStory.forks ? backendStory.forks.length : 0, // Count of forks array
+    views: backendStory.shareCount || 0, // Use shareCount as views for now
     comments: 0, // TODO: Add comments count from backend
     coverImage: undefined, // TODO: Add cover image from backend
     createdAt: backendStory.createdAt,
@@ -292,24 +282,78 @@ export const storyService = {
   },
 
   async likeStory(id: string): Promise<{ likes: number }> {
-    const response = await api.post<BackendStoryResponse>(`/reaction/${id}/like`);
-    return { likes: response.likesCount ?? (response.likes ? response.likes.length : 0) };
-  },
-
-  async bookmarkStory(id: string): Promise<{ bookmarked: boolean }> {
-    await api.post(`/reaction/${id}/bookmark`);
-    return { bookmarked: true };
+    const response = await api.post<BackendStoryResponse>(`/stories/${id}/like`);
+    return { likes: response.likes ? response.likes.length : 0 };
   },
 
   async forkStory(id: string, forkData: { title: string; isPrivate: boolean }): Promise<Story> {
     const backendStory = await api.post<BackendStoryResponse>(`/stories/${id}/fork`, forkData);
     return transformBackendStory(backendStory);
+  }
+};
+
+// Club Services
+export interface Club {
+  _id: string;
+  name: string;
+  description: string;
+  members: string[];
+  isPrivate: boolean;
+  createdBy: string;
+  createdAt: string;
+}
+
+export const clubService = {
+  async getAllClubs(): Promise<Club[]> {
+    return api.get<Club[]>('/club');
   },
 
-  async getBookmarkedStories(): Promise<Story[]> {
-    // This would need a backend endpoint for bookmarked stories
-    // For now, return empty array as placeholder
-    return [];
+  async getClubById(id: string): Promise<Club> {
+    return api.get<Club>(`/club/${id}`);
+  },
+
+  async createClub(clubData: Partial<Club>): Promise<Club> {
+    return api.post<Club>('/club', clubData);
+  },
+
+  async joinClub(id: string): Promise<{ message: string }> {
+    return api.post<{ message: string }>(`/club/${id}/join`);
+  },
+
+  async leaveClub(id: string): Promise<{ message: string }> {
+    return api.post<{ message: string }>(`/club/${id}/leave`);
+  }
+};
+
+// Draft Services
+export interface Draft {
+  _id: string;
+  title: string;
+  content: string;
+  author: string;
+  lastSaved: string;
+  autoSave: boolean;
+}
+
+export const draftService = {
+  async getAllDrafts(): Promise<Draft[]> {
+    return api.get<Draft[]>('/draft');
+  },
+
+  async getDraftById(id: string): Promise<Draft> {
+    return api.get<Draft>(`/draft/${id}`);
+  },
+
+  async saveDraft(draftData: Partial<Draft>): Promise<Draft> {
+    return api.post<Draft>('/draft', draftData);
+  },
+
+  async updateDraft(id: string, updates: Partial<Draft>): Promise<Draft> {
+    return api.put<Draft>(`/draft/${id}`, updates);
+  },
+
+  async deleteDraft(id: string): Promise<void> {
+    return api.delete(`/draft/${id}`);
   }
 };
 
@@ -348,55 +392,5 @@ export const profileService = {
     const result = await api.put<UserProfile>('/users/profile', profileData);
     console.log('Profile update result:', result);
     return result;
-  }
-};
-
-// Comment interfaces and service
-export interface Comment {
-  _id: string;
-  content: string;
-  author: {
-    _id: string;
-    username: string;
-    avatar?: string;
-  };
-  story: string;
-  likes: string[];
-  replies: Comment[];
-  parentComment?: string;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export const commentService = {
-  async getCommentsByStory(storyId: string, page = 1, limit = 20): Promise<{ comments: Comment[]; pagination: any }> {
-    const queryParams = new URLSearchParams();
-    queryParams.append('page', page.toString());
-    queryParams.append('limit', limit.toString());
-    
-    return api.get<{ comments: Comment[]; pagination: any }>(`/comments/${storyId}/comments?${queryParams.toString()}`);
-  },
-
-  async createComment(storyId: string, commentData: { content: string; parentComment?: string }): Promise<Comment> {
-    const response = await api.post<{ comment: Comment }>(`/comments/${storyId}/comments`, commentData);
-    return response.comment;
-  },
-
-  async updateComment(commentId: string, content: string): Promise<Comment> {
-    const response = await api.put<{ comment: Comment }>(`/comments/comments/${commentId}`, { content });
-    return response.comment;
-  },
-
-  async deleteComment(commentId: string): Promise<void> {
-    return api.delete(`/comments/comments/${commentId}`);
-  },
-
-  async likeComment(commentId: string): Promise<{ comment: Comment; likesCount: number; isLiked: boolean }> {
-    return api.post<{ comment: Comment; likesCount: number; isLiked: boolean }>(`/comments/comments/${commentId}/like`);
-  },
-
-  async unlikeComment(commentId: string): Promise<{ comment: Comment; likesCount: number; isLiked: boolean }> {
-    return api.delete<{ comment: Comment; likesCount: number; isLiked: boolean }>(`/comments/comments/${commentId}/like`);
   }
 };

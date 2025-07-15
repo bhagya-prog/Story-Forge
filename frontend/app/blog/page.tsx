@@ -49,6 +49,12 @@ export default function BlogPage() {
     }
   }
 
+  const handleWritePost = () => {
+    // For now, show an alert. In a real app, this would open a post creation modal/page
+    alert("Post creation functionality coming soon!");
+    // TODO: Implement post creation modal or redirect to post creation page
+  };
+
   const filterPosts = () => {
     let filtered = posts
 
@@ -140,7 +146,7 @@ export default function BlogPage() {
                 className="pl-10"
               />
             </div>
-            <Button className="bg-electric-blue hover:bg-electric-blue/90">
+            <Button onClick={handleWritePost} className="bg-electric-blue hover:bg-electric-blue/90">
               <Plus className="h-4 w-4 mr-2" />
               Write Post
             </Button>

@@ -67,6 +67,62 @@ export function NewStoryWizard({ onClose }: NewStoryWizardProps) {
     }))
   }
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Check file size (2MB limit)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File size must be less than 2MB')
+        return
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file')
+        return
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        coverImage: file,
+      }))
+    }
+  }
+
+  const handleFileDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    const file = event.dataTransfer.files?.[0]
+    if (file) {
+      // Check file size (2MB limit)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File size must be less than 2MB')
+        return
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file')
+        return
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        coverImage: file,
+      }))
+    }
+  }
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+  }
+
+  const removeCoverImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      coverImage: null,
+    }))
+  }
+
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
@@ -194,10 +250,42 @@ export function NewStoryWizard({ onClose }: NewStoryWizardProps) {
           <div className="space-y-6">
             <div>
               <Label>Cover Image (Optional)</Label>
-              <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">Click to upload or drag and drop</p>
-                <p className="text-xs text-gray-400">PNG, JPG up to 2MB</p>
+              <div
+                className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+                onClick={() => document.getElementById('coverImageUpload')?.click()}
+                onDragOver={handleDragOver}
+                onDrop={handleFileDrop}
+              >
+                {formData.coverImage ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={URL.createObjectURL(formData.coverImage)}
+                      alt="Cover Preview"
+                      className="w-full h-auto rounded-lg"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={removeCoverImage}
+                    >
+                      <X className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-500">Click to upload or drag and drop</p>
+                    <p className="text-xs text-gray-400">PNG, JPG up to 2MB</p>
+                  </>
+                )}
+                <input
+                  id="coverImageUpload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
