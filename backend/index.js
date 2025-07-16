@@ -27,6 +27,6 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`🚀 Backend running at http://localhost:${PORT}`);
-});
+// server.listen(PORT, () => {
+//   console.log(`🚀 Backend running at http://localhost:${PORT}`);
+// });
