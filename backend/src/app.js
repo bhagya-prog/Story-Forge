@@ -19,15 +19,15 @@ const io = socketIo(server, {
     methods: ['GET', 'POST']
   }
 });
-
+console.log("socket IO initialized");
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 
-
+console.log("Passport initialized");
 // Database connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -46,16 +46,16 @@ app.use('/api/prompt', require('./routes/promptRoutes'));
 app.use('/api/reaction', require('./routes/reactionRoutes'));
 app.use('/api/stories', require('./routes/storyRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
-
+console.log("Routes initialized");
 // Error handling (must be last middleware)
 app.use(errorHandler);
-
+console.log("Error handler initialized");
 // Socket.IO initialization
 const { emitNotification } = initializeSocket(io);
 
 // Export for notification service
 module.exports.emitNotification = emitNotification;
-
+console.log("yo!")
 // Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
